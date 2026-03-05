@@ -35,3 +35,6 @@ docs/_build/
 
 # codeql
 _codeql_detected_source_root
+
+# VS Code
+.vscode/

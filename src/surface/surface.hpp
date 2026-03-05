@@ -14,27 +14,30 @@ struct SurfaceOptionsImpl {
   static std::shared_ptr<SurfaceOptionsImpl> create() {
     return std::make_shared<SurfaceOptionsImpl>();
   }
-  static std::shared_ptr<SurfaceOptionsImpl> from_yaml(std::string input_file,
+  static std::shared_ptr<SurfaceOptionsImpl> from_yaml(std::string const& input_file,
                                                          bool verbose = false);
 
-  SurfaceOptionsImpl() = default;
-  void report(std::ostream& os) const {
-    os << "-- surface options --\n";
-    os << "* verbose = " << (verbose() ? "true" : "false")
-       << "* nbins = " << nbins() << "\n";
+  std::string list_diameters() const {
     std::string dlist = "";
     for (double d : diameters()) {
       dlist += std::to_string(d) + ", ";
     }
-    dlist.erase(str.length() - 2);  // remove last comma and space.
-    os << "* diameters = " << dlist << "\n";
+    dlist.erase(dlist.length() - 2);  // remove last comma and space.
+    return dlist;
+  }
+
+  SurfaceOptionsImpl() = default;
+  void report(std::ostream& os) const {
+    os << "-- surface options --\n";
+    os << "* verbose = " << (verbose() ? "true" : "false") << "\n";
+    os << "* diameters = " << list_diameters() << "\n";
   }
 
   ADD_ARG(bool, verbose) = false;
-  ADD_ARG(size_t, nbins) = 0;
   ADD_ARG(std::vector<double>, diameters);
 };
 using SurfaceOptions = std::shared_ptr<SurfaceOptionsImpl>;
+using Variables = std::map<std::string, torch::Tensor>;
 
 class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
  public:
@@ -55,16 +58,15 @@ class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
   //! options with which this `Surface` was constructed
   SurfaceOptions options;
 
-  //! vectors storing particle sizes and densities
+  //! vectors storing particle sizes
   std::vector<double> diameters;
-  std::vector<double> densities;
 
   //! Constructor to initialize the layers
   SurfaceImpl() : options(SurfaceOptionsImpl::create()) {}
   explicit SurfaceImpl(const SurfaceOptions& options_);
   void reset() override;
 
-  size_t nbins() {return options->nbins()}
+  int nbins() {return diameters.size();}
 
   //! Advance the conserved variables by one time step.
   torch::Tensor forward(double dt, torch::Tensor surface_u,

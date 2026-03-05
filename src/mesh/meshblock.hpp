@@ -197,7 +197,7 @@ class MeshBlockImpl : public torch::nn::Cloneable<MeshBlockImpl> {
   //! stage registers
   torch::Tensor _hydro_u0, _hydro_u1;
   torch::Tensor _scalar_s0, _scalar_s1;
-  torch::Tensor _surface_r0, _surface_r1;
+  torch::Tensor _surface_s0, _surface_s1;
 };
 
 TORCH_MODULE(MeshBlock);

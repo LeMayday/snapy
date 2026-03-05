@@ -40,6 +40,10 @@ MeshBlockOptions MeshBlockOptionsImpl::from_yaml(std::string input_file,
   op->intg() = harp::IntegratorOptionsImpl::from_yaml(input_file);
   if (verbose) op->intg()->report(SINFO(MeshBlockOptions));
 
+  // ------------- surface ------------ //
+  op->surf() = SurfaceOptionsImpl::from_yaml(input_file);
+  if (verbose) op->surf()->report(SINFO(MeshBlockOptions));
+
   auto config = YAML::LoadFile(input_file);
   op->verbose() = config["verbose"].as<bool>(verbose);
 

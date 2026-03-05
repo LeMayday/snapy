@@ -164,6 +164,13 @@ void MeshBlockImpl::reset() {
                      << pib->options->max_iter() << "\n";
   }
 
+  //// ------ (8.1) set up surface model ---- ////
+  psurface = SurfaceImpl::create(options->surf(), this);
+  if (options->verbose()) {
+    SINFO(MeshBlock) << "Diameters: "
+                     << psurface->options->list_diameters() << "\n";
+  }
+
   // dimensions
   int nc1 = options->coord()->nc1();
   int nc2 = options->coord()->nc2();
@@ -185,12 +192,20 @@ void MeshBlockImpl::reset() {
   _scalar_s1 = register_buffer(
       "s1", torch::zeros({pscalar->nvar(), nc3, nc2, nc1}, torch::kFloat64));
 
+  //// ------- (10.1) set up surface buffer ------- ////
+  _surface_s0 = register_buffer(
+      "r0", torch::zeros({psurface->nbins(), nc3, nc2}, torch::kFloat64));
+  _surface_s1 = register_buffer(
+      "r1", torch::zeros({psurface->nbins(), nc3, nc2}, torch::kFloat64));
+
   if (options->verbose()) {
     SINFO(MeshBlock) << "setting up buffer with shapes:" << std::endl
                      << "* hydro_u0: " << _hydro_u0.sizes() << std::endl
                      << "* hydro_u1: " << _hydro_u1.sizes() << std::endl
                      << "* scalar_s0: " << _scalar_s0.sizes() << std::endl
-                     << "* scalar_s1: " << _scalar_s1.sizes() << std::endl;
+                     << "* scalar_s1: " << _scalar_s1.sizes() << std::endl
+                     << "* surface_s0: " << _surface_s0.sizes() << std::endl
+                     << "* surface_s1: " << _surface_s1.sizes() << std::endl;
   }
 }
 

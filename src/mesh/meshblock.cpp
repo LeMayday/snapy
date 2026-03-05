@@ -522,6 +522,7 @@ void MeshBlockImpl::forward(Variables& vars, double dt, int stage) {
 
   auto hydro_u = vars.at("hydro_u");
   auto scalar_s = vars.count("scalars") ? vars.at("scalar_s") : torch::Tensor();
+  auto surface_s = vars.count("surface_s") ? vars.at("surface_s") : torch::Tensor();
 
   auto start = std::chrono::high_resolution_clock::now();
   // -------- (1) save initial state --------
@@ -533,10 +534,15 @@ void MeshBlockImpl::forward(Variables& vars, double dt, int stage) {
       _scalar_s0.copy_(scalar_s);
       _scalar_s1.copy_(scalar_s);
     }
+
+    if (psurface->nbins() > 0) {
+      _surface_s0.copy_(surface_s);
+      _surface_s1.copy_(surface_s);
+    }
   }
 
   // -------- (2) set containers for future results --------
-  torch::Tensor fut_hydro_du, fut_scalar_ds;
+  torch::Tensor fut_hydro_du, fut_scalar_ds, fut_surface_ds;
 
   // -------- (3) launch all jobs --------
   // (3.A) hydro forward
@@ -563,6 +569,19 @@ void MeshBlockImpl::forward(Variables& vars, double dt, int stage) {
     }
   }
 
+  // (3.C) surface forward
+  if (psurface->nbins() > 0) {
+    fut_surface_ds = psurface->forward(dt, surface_s, vars);
+    if (options->verbose()) {
+      auto end = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> elapsed = end - start;
+      SINFO(MeshBlock) << "stage " << stage
+                       << " surface forward time (s): " << elapsed.count()
+                       << std::endl;
+      start = std::chrono::high_resolution_clock::now();
+    }
+  }
+
   // -------- (4) multi-stage averaging --------
   hydro_u.set_(pintg->forward(stage, _hydro_u0, _hydro_u1, fut_hydro_du));
   phydro->peos->apply_conserved_limiter_(hydro_u);
@@ -583,6 +602,18 @@ void MeshBlockImpl::forward(Variables& vars, double dt, int stage) {
       std::chrono::duration<double> elapsed = end - start;
       SINFO(MeshBlock) << "stage " << stage
                        << " multi-stage scalar averaging time (s): "
+                       << elapsed.count() << std::endl;
+      start = std::chrono::high_resolution_clock::now();
+    }
+  }
+
+  if (psurface->nbins() > 0) {
+    surface_s.set_(pintg->forward(stage, _surface_s0, _surface_s1, fut_surface_ds));
+    if (options->verbose()) {
+      auto end = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> elapsed = end - start;
+      SINFO(MeshBlock) << "stage " << stage
+                       << " multi-stage surface averaging time (s): "
                        << elapsed.count() << std::endl;
       start = std::chrono::high_resolution_clock::now();
     }
@@ -632,6 +663,23 @@ void MeshBlockImpl::forward(Variables& vars, double dt, int stage) {
       std::chrono::duration<double> elapsed = end - start;
       SINFO(MeshBlock) << "stage " << stage
                        << " scalar boundary condition time (s): "
+                       << elapsed.count() << std::endl;
+      start = std::chrono::high_resolution_clock::now();
+    }
+  }
+
+  // (5.C) apply surface boundary
+  if (psurface->nbins() > 0) {
+    bops.type(kSurface);
+    for (int i = 2; i < options->bfuncs().size(); ++i) {  // no z-dim (x1), so skip first two
+      if (options->bfuncs()[i] == nullptr) continue;
+      options->bfuncs()[i](surface_s, 3 - i / 2, bops);
+    }
+    if (options->verbose()) {
+      auto end = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> elapsed = end - start;
+      SINFO(MeshBlock) << "stage " << stage
+                       << " surface boundary condition time (s): "
                        << elapsed.count() << std::endl;
       start = std::chrono::high_resolution_clock::now();
     }
@@ -701,6 +749,9 @@ void MeshBlockImpl::forward(Variables& vars, double dt, int stage) {
   _hydro_u1.copy_(hydro_u);
   if (pscalar->nvar() > 0) {
     _scalar_s1.copy_(scalar_s);
+  }
+  if (psurface->nbins() > 0) {
+    _surface_s1.copy_(surface_s);
   }
 }
 

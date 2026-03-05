@@ -301,7 +301,7 @@ double MeshBlockImpl::initialize(Variables& vars, char const* restart_file) {
   BoundaryFuncOptions bops;
   bops.nghost(options->coord()->nghost());
 
-  torch::Tensor hydro_w, scalar_r, solid;
+  torch::Tensor hydro_w, scalar_r, surface_r, solid;
 
   //// ------------ (2) Check hydro primitive ------------ ////
   int64_t nc3 = options->coord()->nc3();
@@ -354,6 +354,30 @@ double MeshBlockImpl::initialize(Variables& vars, char const* restart_file) {
     }
   }
 
+  //// ----------- (4-1) Check surface primitive ---------- ////
+  if (psurface->nbins() > 0) {
+    TORCH_CHECK(vars.count("surface_r"),
+                "initialize: surface_r is required for surface model.");
+    surface_r = vars.at("surface_r");
+    TORCH_CHECK(surface_r.sizes() ==
+                    std::vector<int64_t>({psurface->nbins(), nc3, nc2}),
+                "initialize: surface_r has incorrect shape.", " Expected [",
+                psurface->nbins(), ", ", nc3, ", ", nc2, "] but got ",
+                surface_r.sizes());
+
+    //// ------- (5-1) Apply surface primitive boundary condition -------- ////
+    if (options->verbose()) {
+      SINFO(MeshBlock) << "applying surface primitive boundary conditions."
+                       << std::endl;
+    }
+
+    bops.type(kSurface);
+    for (int i = 2; i < options->bfuncs().size(); ++i) {  // no z-dim (x1), so skip first two
+      if (options->bfuncs()[i] == nullptr) continue;
+      options->bfuncs()[i](vars.at("surface_r"), 3 - i / 2, bops);
+    }
+  }
+
   //// ------ (6) Exchange hydro and scalar buffers -------- ////
   if (options->verbose()) {
     SINFO(MeshBlock) << "exchanging ghost zones." << std::endl;
@@ -385,6 +409,9 @@ double MeshBlockImpl::initialize(Variables& vars, char const* restart_file) {
   vars["hydro_u"] = phydro->peos->compute("W->U", {hydro_w});
   if (pscalar->nvar() > 0) {
     vars["scalar_s"] = hydro_w[IDN] * scalar_r;
+  }
+  if (psurface->nbins() > 0) {
+    vars["surface_s"] = surface_r;
   }
 
   //// ------------- (8) Fill solid boundaries -------------- ////
@@ -434,6 +461,20 @@ double MeshBlockImpl::initialize(Variables& vars, char const* restart_file) {
     for (int i = 0; i < options->bfuncs().size(); ++i) {
       if (options->bfuncs()[i] == nullptr) continue;
       options->bfuncs()[i](vars.at("scalar_s"), 3 - i / 2, bops);
+    }
+  }
+
+  //// ------- (10.1) Apply surface conserved boundary condition -------- ////
+  if (psurface->nbins() > 0) {
+    if (options->verbose()) {
+      SINFO(MeshBlock) << "applying surface conserved boundary conditions."
+                       << std::endl;
+    }
+
+    bops.type(kSurface);
+    for (int i = 2; i < options->bfuncs().size(); ++i) {  // no z-dim (x1), so skip first two
+      if (options->bfuncs()[i] == nullptr) continue;
+      options->bfuncs()[i](vars.at("surface_s"), 3 - i / 2, bops);
     }
   }
 

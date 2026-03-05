@@ -16,6 +16,7 @@
 #include <snap/hydro/hydro.hpp>
 #include <snap/layout/layout.hpp>
 #include <snap/scalar/scalar.hpp>
+#include <snap/surface/surface.hpp>
 
 // arg
 #include <snap/add_arg.h>
@@ -61,6 +62,7 @@ struct MeshBlockOptionsImpl {
   ADD_ARG(HydroOptions, hydro) = nullptr;
   ADD_ARG(ScalarOptions, scalar) = nullptr;
   ADD_ARG(InternalBoundaryOptions, ib) = nullptr;
+  ADD_ARG(SurfaceOptions, surf) = nullptr;
 
   //! boundary functions
   ADD_ARG(std::vector<bcfunc_t>, bfuncs);
@@ -104,6 +106,7 @@ class MeshBlockImpl : public torch::nn::Cloneable<MeshBlockImpl> {
   InternalBoundary pib = nullptr;
   Hydro phydro = nullptr;
   Scalar pscalar = nullptr;
+  Surface psurface = nullptr;
 
   static Layout get_layout() { return _playout; }
 
@@ -194,6 +197,7 @@ class MeshBlockImpl : public torch::nn::Cloneable<MeshBlockImpl> {
   //! stage registers
   torch::Tensor _hydro_u0, _hydro_u1;
   torch::Tensor _scalar_s0, _scalar_s1;
+  torch::Tensor _surface_r0, _surface_r1;
 };
 
 TORCH_MODULE(MeshBlock);

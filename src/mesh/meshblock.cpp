@@ -918,6 +918,9 @@ int MeshBlockImpl::check_redo(Variables& vars) {
     if (vars.count("scalar_s")) {
       vars["scalar_s"].copy_(_scalar_s0);
     }
+    if (vars.count("surface_s")) {
+      vars["surface_s"].copy_(_surface_s0);
+    }
 
     // reset cycle
     cycle -= 1;

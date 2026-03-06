@@ -5,7 +5,7 @@
 
 namespace snap {
 
-SurfaceImpl::SurfaceImpl(const SurfaceOptions& options_, torch::nn::Module* p)
+SurfaceImpl::SurfaceImpl(SurfaceOptions const& options_, torch::nn::Module* p)
     : options(options_) {
   pmb = dynamic_cast<MeshBlockImpl const*>(p);
   reset();
@@ -32,7 +32,7 @@ std::shared_ptr<SurfaceImpl> SurfaceImpl::create(SurfaceOptions const& opts,
   TORCH_CHECK(p, "[Surface] Parent module is null");
   TORCH_CHECK(opts, "[Surface] Options pointer is null");
 
-  return p->register_module(name, Surface(opts));
+  return p->register_module(name, Surface(opts, p));
 }
 
 }

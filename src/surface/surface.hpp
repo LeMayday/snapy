@@ -65,7 +65,7 @@ class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
 
   //! Constructor to initialize the layers
   SurfaceImpl() : options(SurfaceOptionsImpl::create()) {}
-  explicit SurfaceImpl(const SurfaceOptions& options_, torch::nn::Module* p = nullptr);
+  explicit SurfaceImpl(SurfaceOptions const& options_, torch::nn::Module* p = nullptr);
   void reset() override;
 
   int nbins() {return options->diameters().size();}

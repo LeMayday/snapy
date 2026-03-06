@@ -75,8 +75,11 @@ class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
                         Variables const& other);
 
  private:
-  //! vectors storing particle sizes
+  //! tensors storing fixed values in simulation particle sizes
   torch::Tensor diameters;  // nbins x nc3 x nc2 tensor
+  torch::Tensor dx1;
+  torch::Tensor dx2;
+  torch::Tensor dx3;
 
 };
 

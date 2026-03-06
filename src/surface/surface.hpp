@@ -10,6 +10,8 @@
 
 namespace snap {
 
+class MeshBlockImpl;  // forward declaration
+
 struct SurfaceOptionsImpl {
   static std::shared_ptr<SurfaceOptionsImpl> create() {
     return std::make_shared<SurfaceOptionsImpl>();
@@ -58,19 +60,23 @@ class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
   //! options with which this `Surface` was constructed
   SurfaceOptions options;
 
-  //! vectors storing particle sizes
-  std::vector<double> diameters;
+  //! non-owning reference to parent
+  MeshBlockImpl const* pmb = nullptr;
 
   //! Constructor to initialize the layers
   SurfaceImpl() : options(SurfaceOptionsImpl::create()) {}
-  explicit SurfaceImpl(const SurfaceOptions& options_);
+  explicit SurfaceImpl(const SurfaceOptions& options_, torch::nn::Module* p = nullptr);
   void reset() override;
 
-  int nbins() {return diameters.size();}
+  int nbins() {return options->diameters().size();}
 
   //! Advance the conserved variables by one time step.
   torch::Tensor forward(double dt, torch::Tensor surface_u,
                         Variables const& other);
+
+ private:
+  //! vectors storing particle sizes
+  torch::Tensor diameters;  // nbins x nc3 x nc2 tensor
 
 };
 

@@ -1,14 +1,22 @@
+// snap
+#include <snap/mesh/meshblock.hpp>
+
 #include "surface.hpp"
 
 namespace snap {
 
-SurfaceImpl::SurfaceImpl(const SurfaceOptions& options_) : options(options_) {
+SurfaceImpl::SurfaceImpl(const SurfaceOptions& options_, torch::nn::Module* p)
+    : options(options_) {
+  pmb = dynamic_cast<MeshBlockImpl const*>(p);
   reset();
 }
 
 void SurfaceImpl::reset() {
   if (nbins() > 0) {
-    diameters = options->diameters();
+    torch::Tensor t = torch::tensor(options->diameters());
+    int nc3 = pmb->options->coord()->nc3();
+    int nc2 = pmb->options->coord()->nc2();
+    diameters = t.view({nbins(), 1, 1}).expand({nbins(), nc3, nc2});
   }
 }
 

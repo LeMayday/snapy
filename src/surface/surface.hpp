@@ -81,6 +81,13 @@ class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
   torch::Tensor dx2;
   torch::Tensor dx3;
 
+  //! aerodynamic values
+  static constexpr double k = 0.4;        // von Karman constant
+  static constexpr double A_N = 0.0123;
+  static constexpr double y = 3E-4;       // [kg/s^2]
+  static constexpr int inv_z0 = 100;      // [1/m] surface roughness length
+  static constexpr int rho_p = 2650;      // [kg/m^3] particle density
+
 };
 
 TORCH_MODULE(Surface);

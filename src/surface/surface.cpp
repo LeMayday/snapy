@@ -28,8 +28,28 @@ void SurfaceImpl::reset() {
 
 torch::Tensor SurfaceImpl::forward(double dt, torch::Tensor surface_u,
                                   Variables const& other) {
-  // TODO
-  return surface_u;
+  // TODO: solid logic (see hydro.cpp forward)
+  auto const& hydro_w = other.at("hydro_w");
+  int nghost = pmb->options->coord()->nghost();
+  double grav1 = -pmb->phydro->options->grav()->grav1();  // note negative sign to make value positive
+
+  auto const& vel3 = hydro_w[3].select(2, nghost);
+  auto const& vel2 = hydro_w[2].select(2, nghost);
+  auto const& rho = hydro_w[0].select(2, nghost);
+
+  auto a = k / torch::log(dx1 * inv_z0);
+  auto b = 0.25 * rho / grav1;
+  auto v_fric_thresh_sq = A_N * (rho_p / rho * grav1 * diameters + y / diameters / rho);
+
+  auto H = [&] (torch::Tensor vel) -> torch::Tensor {
+    auto v_fric = a * vel;
+    auto v_ratio_sq = v_fric_thresh_sq / (v_fric*v_fric);
+    auto flux = b * v_fric*v_fric*v_fric * (1 - v_ratio_sq) * (7. + 50. * v_ratio_sq);
+    return torch::clamp(flux, 0);
+  };
+
+  auto Q = H(vel3) * dx2 + H(vel2) * dx3;
+  return -torch::minimum(Q * dt, surface_u);  // note negative sign
 }
 
 std::shared_ptr<SurfaceImpl> SurfaceImpl::create(SurfaceOptions const& opts,

@@ -68,7 +68,7 @@ class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
   explicit SurfaceImpl(SurfaceOptions const& options_, torch::nn::Module* p = nullptr);
   void reset() override;
 
-  int nbins() {return options->diameters().size();}
+  int nbins() {return options->diameters().size() - 1;}
 
   //! Advance the conserved variables by one time step.
   torch::Tensor forward(double dt, torch::Tensor surface_u,

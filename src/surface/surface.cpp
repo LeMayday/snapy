@@ -1,4 +1,5 @@
 // snap
+#include <ATen/TensorIndexing.h>
 #include <snap/mesh/meshblock.hpp>
 
 #include "surface.hpp"
@@ -13,10 +14,12 @@ SurfaceImpl::SurfaceImpl(SurfaceOptions const& options_, torch::nn::Module* p)
 
 void SurfaceImpl::reset() {
   if (nbins() > 0) {
-    torch::Tensor t = torch::tensor(options->diameters());
+    using namespace torch::indexing;
+    torch::Tensor d = torch::tensor(options->diameters())
+                      .index({Slice(None, -1)});  // last diameter is not counted for bins
     int nc3 = pmb->options->coord()->nc3();
     int nc2 = pmb->options->coord()->nc2();
-    diameters = t.view({nbins(), 1, 1}).expand({nbins(), nc3, nc2});
+    diameters = d.view({nbins(), 1, 1}).expand({nbins(), nc3, nc2});
 
     // create tensor views of cell widths
     int nghost = pmb->options->coord()->nghost();

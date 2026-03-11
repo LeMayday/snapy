@@ -87,6 +87,7 @@ class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
   static constexpr double y = 3E-4;       // [kg/s^2]
   static constexpr int inv_z0 = 100;      // [1/m] surface roughness length
   static constexpr int rho_p = 2650;      // [kg/m^3] particle density
+  static constexpr double C_f = 0.1;      // sqrt(skin friction coefficient / 2)
 
 };
 

@@ -46,6 +46,7 @@ file(GLOB src_files
     mesh/*.cpp
     output/*.cpp
     scalar/*.cpp
+    surface/*.cpp
     utils/*.cpp
     forcing/*.cpp
     implicit/*.cpp

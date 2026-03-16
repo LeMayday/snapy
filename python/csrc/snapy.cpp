@@ -19,6 +19,7 @@ void bind_bc(py::module &);
 void bind_mesh(py::module &);
 void bind_hydro(py::module &);
 void bind_scalar(py::module &);
+void bind_surface(py::module &);
 void bind_eos(py::module &);
 void bind_coord(py::module &);
 void bind_recon(py::module &);
@@ -43,6 +44,7 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.attr("kPrimitive") = (int)snap::kPrimitive;
   m.attr("kConserved") = (int)snap::kConserved;
   m.attr("kScalar") = (int)snap::kScalar;
+  m.attr("kSurface") = (int)snap::kSurface;
 
   m.def("load_restart", &snap::load_restart);
 
@@ -57,5 +59,6 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   bind_forcing(m);
   bind_implicit(m);
   bind_mesh(m);
+  bind_surface(m);
   // bind_scalar(m);
 }

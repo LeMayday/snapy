@@ -87,6 +87,7 @@ void bind_mesh(py::module &m) {
       .ADD_OPTION(snap::HydroOptions, snap::MeshBlockOptionsImpl, hydro)
       .ADD_OPTION(snap::ScalarOptions, snap::MeshBlockOptionsImpl, scalar)
       .ADD_OPTION(snap::InternalBoundaryOptions, snap::MeshBlockOptionsImpl, ib)
+      .ADD_OPTION(snap::SurfaceOptions, snap::MeshBlockOptionsImpl, surf)
       .ADD_OPTION(std::vector<bcfunc_t>, snap::MeshBlockOptionsImpl, bfuncs)
       .ADD_OPTION(snap::LayoutOptions, snap::MeshBlockOptionsImpl, layout);
 

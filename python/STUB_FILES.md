@@ -27,6 +27,7 @@ The stub files are organized in the `snapy/` subdirectory to match the compiled 
 - `snapy/output.pyi` - Output classes
 - `snapy/reconstruction.pyi` - Reconstruction classes
 - `snapy/riemann.pyi` - Riemann solver classes
+- `snapy/surface.pyi` - Surface classes
 - `py.typed` - Marker file indicating this package supports type hints (PEP 561)
 
 This modular structure makes it easier to maintain and navigate the type definitions.
@@ -101,6 +102,7 @@ The actual pybind11 implementation is in:
 - `python/csrc/pyoutput.cpp` - Output management
 - `python/csrc/pyrecon.cpp` - Spatial reconstruction
 - `python/csrc/pyriemann.cpp` - Riemann solvers
+- `python/csrc/pysurface.cpp` - Surface dust source
 - `python/csrc/pyscalar.cpp` - Scalar transport (placeholder)
 
 ### Stub File Contents
@@ -120,6 +122,7 @@ The stub files are split into logical modules:
 - **`snapy/output.pyi`**: `OutputOptions`, `OutputType`, `NetcdfOutput`
 - **`snapy/reconstruction.pyi`**: `InterpOptions`, `ReconstructOptions`, `Reconstruct`
 - **`snapy/riemann.pyi`**: `RiemannSolverOptions`, `UpwindSolver`, `RoeSolver`, `LmarsSolver`, `ShallowRoeSolver`
+- **`snapy/surface.pyi`**: `SurfaceOptions`, `Surface`
 
 Each module file contains type signatures using Python's `typing` module, overloaded methods using `@overload` decorator, and comprehensive docstrings with parameter descriptions.
 
@@ -191,6 +194,9 @@ High-order spatial reconstruction schemes for flux calculations.
 
 ### Riemann Solvers (`pyriemann.cpp`)
 Approximate Riemann solvers: upwind, Roe, LMARS, and shallow water Roe.
+
+### Surface Dust (`surface.cpp`)
+Surface dust scheme.
 
 ## Example Usage
 

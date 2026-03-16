@@ -112,6 +112,16 @@ class MeshBlockOptions:
         ...
 
     @overload
+    def surf(self) -> SurfaceOptions:
+        """Get surface options."""
+        ...
+    
+    @overload
+    def surf(self, value) -> SurfaceOptions:
+        """Get surface options."""
+        ...
+
+    @overload
     def bfuncs(self) -> List[bcfunc_t]:
         """Get boundary functions."""
         ...

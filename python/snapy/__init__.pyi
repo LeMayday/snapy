@@ -37,3 +37,4 @@ from .mesh import *
 from .output import *
 from .reconstruction import *
 from .riemann import *
+from .surface import *

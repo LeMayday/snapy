@@ -193,10 +193,12 @@ void MeshBlockImpl::reset() {
       "s1", torch::zeros({pscalar->nvar(), nc3, nc2, nc1}, torch::kFloat64));
 
   //// ------- (10.1) set up surface buffer ------- ////
-  _surface_s0 = register_buffer(
-      "r0", torch::zeros({psurface->nbins(), nc3, nc2}, torch::kFloat64));
-  _surface_s1 = register_buffer(
-      "r1", torch::zeros({psurface->nbins(), nc3, nc2}, torch::kFloat64));
+  if (psurface->nbins() > 0) {
+    _surface_s0 = register_buffer(
+        "r0", torch::zeros({psurface->nbins(), nc3, nc2}, torch::kFloat64));
+    _surface_s1 = register_buffer(
+        "r1", torch::zeros({psurface->nbins(), nc3, nc2}, torch::kFloat64));
+  }
 
   if (options->verbose()) {
     SINFO(MeshBlock) << "setting up buffer with shapes:" << std::endl

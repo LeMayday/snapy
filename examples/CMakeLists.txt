@@ -7,6 +7,7 @@ setup_problem(straka)
 setup_problem(run_hydro)
 setup_problem(shallow_xy)
 setup_problem(shallow_splash)
+setup_problem(surface_dust)
 
 file(GLOB inputs *.yaml *.py)
 # create bin folder if does not exist

@@ -1,0 +1,90 @@
+reference-state:
+  Tref: 0
+  Pref: 100000.0
+species:
+- name: dry
+  composition:
+    C: 0.95
+    O: 1.9
+    N: 0.06
+    Ar: 0.02
+  cv_R: 3.4
+geometry:
+  type: cartesian
+  bounds:
+    x1min: 0
+    x1max: 20000.0
+    x2min: 0
+    x2max: 80000.0
+    x3min: 0
+    x3max: 80000.0
+  cells:
+    nx1: 64
+    nx2: 256
+    nx3: 256
+    nghost: 3
+dynamics:
+  equation-of-state:
+    type: ideal-gas
+    gammad: 1.294
+    weight: 0.04345
+    limiter: false
+  vertical-projection:
+    type: temperature
+    pressure-margin: 1.0e-06
+  reconstruct:
+    vertical:
+      type: weno5
+      scale: false
+      shock: true
+    horizontal:
+      type: weno5
+      scale: false
+      shock: true
+  riemann-solver:
+    type: hllc
+  disable-flux-x2: true
+  disable-flux-x3: true
+boundary-condition:
+  internal:
+    solid-density: 1000.0
+    solid-pressure: 1000000000.0
+    max-iter: 5
+  external:
+    x1-inner: reflecting
+    x1-outer: reflecting
+    x2-inner: reflecting
+    x2-outer: reflecting
+    x3-inner: reflecting
+    x3-outer: reflecting
+integration:
+  type: rk3
+  cfl: 0.9
+  implicit-scheme: 1
+  nlim: -1
+  tlim: 10000
+  ncycle_out: 1000
+forcing:
+  const-gravity:
+    grav1: -3.73
+surface:
+  diameters:
+  - 1.0000e-05
+  - 1.2589e-05
+  - 1.5849e-05
+  - 1.9953e-05
+  - 2.5119e-05
+  - 3.1623e-05
+  - 3.9811e-05
+  - 5.0119e-05
+  - 6.3096e-05
+  - 7.9433e-05
+  - 1.0000e-04
+outputs:
+- type: restart
+  dt: 5400
+- type: netcdf
+  variables:
+  - prim
+  - uov
+  dt: 1200

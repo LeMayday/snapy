@@ -19,13 +19,17 @@ void SurfaceImpl::reset() {
                       .index({Slice(None, -1)});  // last diameter is not counted for bins
     int nc3 = pmb->options->coord()->nc3();
     int nc2 = pmb->options->coord()->nc2();
-    diameters = d.view({nbins(), 1, 1}).expand({nbins(), nc3, nc2});
+    diameters = register_buffer("diameters",
+                                d.view({nbins(), 1, 1}).expand({nbins(), nc3, nc2}));
 
     // create tensor views of cell widths
     int nghost = pmb->options->coord()->nghost();
-    dx3_surf = pmb->pcoord->dx3f.view({1, nc3, 1}).expand({nbins(), nc3, nc2});
-    dx2_surf = pmb->pcoord->dx2f.view({1, 1, nc2}).expand({nbins(), nc3, nc2});
-    dx1_surf = pmb->pcoord->dx1f[nghost].expand({nbins(), nc3, nc2});
+    dx3_surf = register_buffer("dx3_surf",
+                               pmb->pcoord->dx3f.view({1, nc3, 1}).expand({nbins(), nc3, nc2}));
+    dx2_surf = register_buffer("dx2_surf",
+                               pmb->pcoord->dx2f.view({1, 1, nc2}).expand({nbins(), nc3, nc2}));
+    dx1_surf = register_buffer("dx1_surf",
+                               pmb->pcoord->dx1f[nghost].expand({nbins(), nc3, nc2}));
   }
 }
 

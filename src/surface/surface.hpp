@@ -77,9 +77,9 @@ class SurfaceImpl : public torch::nn::Cloneable<SurfaceImpl> {
  private:
   //! tensors storing fixed values in simulation particle sizes
   torch::Tensor diameters;  // nbins x nc3 x nc2 tensor
-  torch::Tensor dx1;
-  torch::Tensor dx2;
-  torch::Tensor dx3;
+  torch::Tensor dx1_surf;   // nbins x nc3 x nc2 versions of dxf tensors
+  torch::Tensor dx2_surf;
+  torch::Tensor dx3_surf;
 
   //! aerodynamic values
   static constexpr double k = 0.4;        // von Karman constant

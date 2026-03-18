@@ -23,9 +23,9 @@ void SurfaceImpl::reset() {
 
     // create tensor views of cell widths
     int nghost = pmb->options->coord()->nghost();
-    dx3 = pmb->pcoord->dx3f.view({1, nc3, 1}).expand({nbins(), nc3, nc2});
-    dx2 = pmb->pcoord->dx2f.view({1, 1, nc2}).expand({nbins(), nc3, nc2});
-    dx1 = pmb->pcoord->dx1f[nghost].expand({nbins(), nc3, nc2});
+    dx3_surf = pmb->pcoord->dx3f.view({1, nc3, 1}).expand({nbins(), nc3, nc2});
+    dx2_surf = pmb->pcoord->dx2f.view({1, 1, nc2}).expand({nbins(), nc3, nc2});
+    dx1_surf = pmb->pcoord->dx1f[nghost].expand({nbins(), nc3, nc2});
   }
 }
 
@@ -52,7 +52,7 @@ torch::Tensor SurfaceImpl::forward(double dt, torch::Tensor surface_u,
     return torch::clamp(flux, 0);
   };
 
-  auto Q = H(vel3) * dx2 + H(vel2) * dx3;
+  auto Q = H(vel3) * dx2_surf + H(vel2) * dx3_surf;
   return -torch::minimum(Q * dt, surface_u);  // note negative sign
 }
 

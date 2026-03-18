@@ -44,7 +44,7 @@ torch::Tensor SurfaceImpl::forward(double dt, torch::Tensor surface_u,
   auto b = 0.25 * rho / grav1;
   auto v_fric_thresh_sq = A_N * (rho_p / rho * grav1 * diameters + y / diameters / rho);
 
-  auto H = [&] (torch::Tensor vel) -> torch::Tensor {
+  auto H = [&] (torch::Tensor const& vel) -> torch::Tensor {
     // auto v_fric = a * vel;
     auto v_fric = C_f * vel;
     auto v_ratio_sq = v_fric_thresh_sq / (v_fric*v_fric);

@@ -51,7 +51,7 @@ torch::Tensor SurfaceImpl::forward(double dt, torch::Tensor surface_u,
 
   auto H = [&] (torch::Tensor const& vel) -> torch::Tensor {
     // auto v_fric = a * vel;
-    auto v_fric = C_f * vel;
+    auto v_fric = C_f * torch::abs(vel);
     auto v_ratio_sq = v_fric_thresh_sq / (v_fric*v_fric);
     auto flux = b * v_fric*v_fric*v_fric * (1 - v_ratio_sq) * (7. + 50. * v_ratio_sq);
     // replace divide by 0 results (if vel = 0) with 0

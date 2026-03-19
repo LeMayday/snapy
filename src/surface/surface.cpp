@@ -19,6 +19,7 @@ void SurfaceImpl::reset() {
                       .index({Slice(None, -1)});  // last diameter is not counted for bins
     int nc3 = pmb->options->coord()->nc3();
     int nc2 = pmb->options->coord()->nc2();
+    // these tensors (diameters, dx3-1) should remain as views since changed to underlying data should be captured
     diameters = register_buffer("diameters",
                                 d.view({nbins(), 1, 1}).expand({nbins(), nc3, nc2}));
 
@@ -53,7 +54,8 @@ torch::Tensor SurfaceImpl::forward(double dt, torch::Tensor surface_u,
     auto v_fric = C_f * vel;
     auto v_ratio_sq = v_fric_thresh_sq / (v_fric*v_fric);
     auto flux = b * v_fric*v_fric*v_fric * (1 - v_ratio_sq) * (7. + 50. * v_ratio_sq);
-    return torch::clamp(flux, 0);
+    // replace divide by 0 results (if vel = 0) with 0
+    return torch::nan_to_num(torch::clamp(flux, 0), 0, 0, 0);
   };
 
   auto Q = H(vel3) * dx2_surf + H(vel2) * dx3_surf;

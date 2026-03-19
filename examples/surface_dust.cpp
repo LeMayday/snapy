@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     using namespace torch::indexing;
     bucket_densities = torch::full_like(diameters.index({Slice(None, -1)}), 1E3);
   }
-  vars["surface_r"] = bucket_densities.view({psurface->nbins(), 1, 1}).expand({psurface->nbins(), nc3, nc2});
+  vars["surface_r"] = bucket_densities.view({psurface->nbins(), 1, 1}).expand({psurface->nbins(), nc3, nc2}).clone();
 
   char const* restart = nullptr;
   double current_time = block->initialize(vars, restart);

@@ -75,7 +75,14 @@ EquationOfStateOptions EquationOfStateOptionsImpl::from_yaml(
         std::string sp_name = sp["name"].as<std::string>();
         auto it = std::find(kintera::species_names.begin(), kintera::species_names.end(), sp_name);
         int id = it - kintera::species_names.begin();
-        op->thermo()->cloud_ids().push_back(id);    // expect aerosols to be unique to all other cloud_ids
+        // expect aerosols to be unique to all other cloud_ids
+        auto it_cloud = std::lower_bound(op->thermo()->cloud_ids().begin(), op->thermo()->cloud_ids().end(), id);
+        int idx = std::distance(op->thermo()->cloud_ids().begin(), it_cloud);
+        // Since this is out of order, insert according to index in cloud_ids. See thermo_options.cpp lines 154-165
+        op->thermo()->cloud_ids().insert(it_cloud, id);
+        op->thermo()->cref_R().insert(op->thermo()->cref_R().begin() + idx, kintera::species_cref_R[id]);
+        op->thermo()->uref_R().insert(op->thermo()->uref_R().begin() + idx, kintera::species_uref_R[id]);
+        op->thermo()->sref_R().insert(op->thermo()->sref_R().begin() + idx, kintera::species_sref_R[id]);
       }
     }
   }

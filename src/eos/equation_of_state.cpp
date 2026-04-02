@@ -65,6 +65,19 @@ EquationOfStateOptions EquationOfStateOptionsImpl::from_yaml(
 
   op->thermo() = kintera::ThermoOptionsImpl::from_yaml(filename, op->verbose());
 
+  // clouds are only registered if reactions are specified
+  // for aerosol tracers, register custom clouds
+  if (op->thermo()) {
+    // see kintera thermo_options.cpp
+    for (const auto& sp : config["species"]) {
+      if (sp["cloud"].as<bool>(false)) {
+        auto it = std::find(kintera::species_names.begin(), kintera::species_names.end(), sp);
+        int id = it - kintera::species_names.begin();
+        op->thermo()->cloud_ids().push_back(id);    // expect aerosols to be unique to all other cloud_ids
+      }
+    }
+  }
+
   if (op->thermo()) {
     TORCH_CHECK(
         NMASS == 0 || (op->thermo()->vapor_ids().size() +

@@ -71,7 +71,9 @@ EquationOfStateOptions EquationOfStateOptionsImpl::from_yaml(
     // see kintera thermo_options.cpp
     for (const auto& sp : config["species"]) {
       if (sp["cloud"].as<bool>(false)) {
-        auto it = std::find(kintera::species_names.begin(), kintera::species_names.end(), sp);
+        // kintera::species_names should have already been initialized --- just need to find the species
+        std::string sp_name = sp["name"].as<std::string>();
+        auto it = std::find(kintera::species_names.begin(), kintera::species_names.end(), sp_name);
         int id = it - kintera::species_names.begin();
         op->thermo()->cloud_ids().push_back(id);    // expect aerosols to be unique to all other cloud_ids
       }

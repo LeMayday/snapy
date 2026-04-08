@@ -1,4 +1,5 @@
 // torch
+#include "torch/cuda.h"
 #include <torch/torch.h>
 
 // snap
@@ -17,11 +18,13 @@ int main(int argc, char** argv) {
   auto op = MeshBlockOptionsImpl::from_yaml("surface_dust.yaml");
   MeshBlock block = MeshBlock(op);
 
-  torch::Device device(torch::kCPU);
-  if (torch::cuda::is_available()) {
-    std::cout << "Running on CUDA" << std::endl;
-    device = block->get_layout()->pg->getBoundDeviceId().value();
-  }
+  torch::Device cpu(torch::kCPU);
+  torch::Device gpu(torch::kCUDA);
+  torch::Device device(torch::cuda::is_available() ? gpu : cpu);
+  // if (torch::cuda::is_available()) {
+  //   std::cout << "Running on CUDA" << std::endl;
+  //   device = block->get_layout()->pg->getBoundDeviceId().value();
+  // }
   block->to(device);
 
   auto interior = block->part({0, 0, 0}, PartOptions().exterior(false));

@@ -1,0 +1,106 @@
+reference-state:
+  Tref: 0
+  Pref: 100000.0
+species:
+- name: dry
+  composition:
+    C: 0.95
+    O: 1.9
+    N: 0.06
+    Ar: 0.02
+  cv_R: 3.4
+- name: dust_10um
+  composition:
+    Mg: 2
+    Si: 1
+    O: 4
+  cv_R: 3
+  cloud: true
+- name: dust_12.589um
+  composition:
+    Mg: 2
+    Si: 1
+    O: 4
+  cv_R: 3
+  cloud: true
+geometry:
+  type: cartesian
+  bounds:
+    x1min: 0
+    x1max: 5000.0
+    x2min: 0
+    x2max: 20000.0
+    x3min: 0
+    x3max: 20000.0
+  cells:
+    nx1: 16
+    nx2: 64
+    nx3: 1
+    nghost: 3
+dynamics:
+  equation-of-state:
+    type: ideal-moist
+    gammad: 1.294
+    weight: 0.04345
+    limiter: false
+  vertical-projection:
+    type: temperature
+    pressure-margin: 1.0e-06
+  reconstruct:
+    vertical:
+      type: weno5
+      scale: false
+      shock: true
+    horizontal:
+      type: weno5
+      scale: false
+      shock: true
+  riemann-solver:
+    type: hllc
+  disable-flux-x2: true
+  disable-flux-x3: true
+boundary-condition:
+  internal:
+    solid-density: 1000.0
+    solid-pressure: 1000000000.0
+    max-iter: 5
+  external:
+    x1-inner: reflecting
+    x1-outer: reflecting
+    x2-inner: reflecting
+    x2-outer: reflecting
+    x3-inner: reflecting
+    x3-outer: reflecting
+integration:
+  type: rk3
+  cfl: 0.9
+  implicit-scheme: 0
+  nlim: -1
+  tlim: 10000
+  ncycle_out: 1
+forcing:
+  const-gravity:
+    grav1: -3.73
+sedimentation:
+  radius:
+    dust_10um: 10.e-6
+    dust_12.589um: 12.589e-6
+
+  density:
+    dust_10um: 2650
+    dust_12.589um: 2650
+
+  const-vsed:
+    dust_10um: -10.
+    dust_12.589um: -10.
+outputs:
+- type: restart
+  dt: 5400
+- type: netcdf
+  variables:
+  - prim
+  - uov
+  dt: 1200
+problem:
+  Ps: 600.
+  Ts: 200.

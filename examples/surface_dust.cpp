@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
   int const p0 = 600;
   int const Ts = 200;
 
-  auto op = MeshBlockOptionsImpl::from_yaml("surface_dust.yaml");
+  auto op = MeshBlockOptionsImpl::from_yaml("surface_dust_sed.yaml");
   MeshBlock block = MeshBlock(op);
 
   torch::Device cpu(torch::kCPU);
@@ -54,6 +54,8 @@ int main(int argc, char** argv) {
 
   w[IPR] = p0 * torch::exp(-grav1 * x1v / (Rd * Ts));
   w[IDN] = w[IPR] / (Rd * Ts);
+  w[ICY] = 0.0005 * torch::ones_like(w[ICY]);
+  w[ICY + 1] = 0.001 * torch::ones_like(w[ICY + 1]);
 
   w.index(interior)[IVY] = torch::full_like(w.index(interior)[IVY], 50);
 
@@ -61,13 +63,13 @@ int main(int argc, char** argv) {
   std::map<std::string, torch::Tensor> vars;
   vars["hydro_w"] = w;
 
-  auto diameters = torch::tensor(psurface->options->diameters());
-  torch::Tensor bucket_densities;
-  {
-    using namespace torch::indexing;
-    bucket_densities = torch::full_like(diameters.index({Slice(None, -1)}), 1E3);
-  }
-  vars["surface_r"] = bucket_densities.view({psurface->nbins(), 1, 1}).expand({psurface->nbins(), nc3, nc2}).clone();
+  // auto diameters = torch::tensor(psurface->options->diameters());
+  // torch::Tensor bucket_densities;
+  // {
+  //   using namespace torch::indexing;
+  //   bucket_densities = torch::full_like(diameters.index({Slice(None, -1)}), 1E3);
+  // }
+  // vars["surface_r"] = bucket_densities.view({psurface->nbins(), 1, 1}).expand({psurface->nbins(), nc3, nc2}).clone();
 
   char const* restart = nullptr;
   double current_time = block->initialize(vars, restart);
@@ -86,14 +88,15 @@ int main(int argc, char** argv) {
   //   block->make_outputs(vars, current_time);
   // }
 
-  auto times_to_deplete = torch::zeros_like(vars["surface_r"]);
+  // auto times_to_deplete = torch::zeros_like(vars["surface_r"]);
+
 
   while (!block->pintg->stop(block->cycle++, current_time)) {
     double dt = block->max_time_step(vars);
     block->print_cycle_info(vars, current_time, dt);
 
-    auto surface_s = vars["surface_s"];
-    times_to_deplete.index({surface_s > 0}) += dt;
+    // auto surface_s = vars["surface_s"];
+    // times_to_deplete.index({surface_s > 0}) += dt;
     // main loop
     for (int stage = 0; stage < block->pintg->stages.size(); ++stage) {
       block->forward(vars, dt, stage);

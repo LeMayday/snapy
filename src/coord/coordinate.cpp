@@ -272,20 +272,19 @@ torch::Tensor CoordinateImpl::center_distance3() const {
 }
 
 torch::Tensor CoordinateImpl::face_area1() const {
-  return dx3f.outer(dx2f).unsqueeze(2).expand({-1, -1, x1f.size(0)});
+  return cfa1;
 }
 
 torch::Tensor CoordinateImpl::face_area2() const {
-  return dx3f.outer(dx1f).unsqueeze(1).expand({-1, x2f.size(0), -1});
+  return cfa2;
 }
 
 torch::Tensor CoordinateImpl::face_area3() const {
-  return dx2f.outer(dx1f).unsqueeze(0).expand({x3f.size(0), -1, -1});
+  return cfa3;
 }
 
 torch::Tensor CoordinateImpl::cell_volume() const {
-  return torch::einsum("km,mji->kji",
-                       {dx3f.unsqueeze(1), dx2f.outer(dx1f).unsqueeze(0)});
+  return cvol;
 }
 
 torch::Tensor CoordinateImpl::find_cell_index(

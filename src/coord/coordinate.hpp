@@ -119,6 +119,7 @@ class CoordinateImpl {
   torch::Tensor x1v, x2v, x3v;
   torch::Tensor dx1f, dx2f, dx3f;
   torch::Tensor dx1v, dx2v, dx3v;
+  torch::Tensor cfa1, cfa2, cfa3, cvol;
 
   virtual ~CoordinateImpl() = default;
 

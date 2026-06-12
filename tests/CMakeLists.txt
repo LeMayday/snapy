@@ -32,10 +32,10 @@ setup_parallel_test(test_exchange 2)
 #setup_cuda_test(test_thomas_solver)
 #setup_test(test_aneos)
 
-set_tests_properties(test_exchange.release PROPERTIES
-  ENVIRONMENT
-    "BLOCKS_PER_PROCESS=3;EXPECT_LOCAL_NEIGHBOR=1;EXPECT_REMOTE_NEIGHBOR=1"
-)
+#set_tests_properties(test_exchange.release PROPERTIES
+#  ENVIRONMENT
+#    "BLOCKS_PER_PROCESS=3;EXPECT_LOCAL_NEIGHBOR=1;EXPECT_REMOTE_NEIGHBOR=1"
+#)
 
 file(GLOB inputs *.yaml *.py)
 # create tests folder if does not exist

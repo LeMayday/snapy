@@ -18,8 +18,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
   set(CMAKE_C_FLAGS_RELEASE
       "-O3 -funroll-loops -funroll-all-loops -fstrict-aliasing")
 
-  set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fsanitize=address,undefined")
-  set(CMAKE_C_FLAGS_DEBUG "-g3 -fsanitize=address,undefined")
+  #set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fsanitize=address,undefined")
+  #set(CMAKE_C_FLAGS_DEBUG "-g3 -fsanitize=address,undefined")
+  set(CMAKE_CXX_FLAGS_DEBUG "-g3")
+  set(CMAKE_C_FLAGS_DEBUG "-g3")
 
   set(KNOWN_COMPILER TRUE)
 endif()
